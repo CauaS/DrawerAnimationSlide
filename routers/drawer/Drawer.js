@@ -1,49 +1,78 @@
 import React from 'react';
-import { Text, View } from 'react-native';
-import { Feather, AntDesign } from '@expo/vector-icons';
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
+import { StyleSheet } from 'react-native';
+import {
+  DrawerItem,
+  createDrawerNavigator,
+  DrawerContentScrollView,
+} from '@react-navigation/drawer';
 
-import Screens from '../stack/Stack'
+import Animated from 'react-native-reanimated';
+
+import { AntDesign } from '@expo/vector-icons';
+import { View } from 'react-native';
+import Screens from '../stack/Stack';
 
 const Drawer = createDrawerNavigator();
 
-const DrawerContent = (props) => {
+const DrawerContent = props => {
   return (
-    <DrawerContentScrollView {...props} >
+    <DrawerContentScrollView {...props} scrollEnabled={false} contentContainerStyle={{ flex: 1 }}>
       <View>
-        <View style={{ margin: 15 }}>
-          <Text style={{ fontSize: 25}}>Welcome Cali</Text>
-        </View>
         <DrawerItem
           label="Dashboard"
-          labelStyle={{ marginLeft: -10 }}
-          onPress={() => props.navigation.navigate("Dashboard")}
-          icon={ () => <AntDesign name="dashboard" size={16}/> }
-        />
-        <DrawerItem
-          label="Contacts"
-          labelStyle={{ marginLeft: -10 }}
-          onPress={() => props.navigation.navigate("Contacts")}
-          icon={ () => <AntDesign name="phone" size={16}/> }
+          labelStyle={{ color: 'black', marginLeft: -16 }}
+          onPress={() => props.navigation.navigate('Home')}
+          icon={() => <AntDesign name="dashboard" color="black" size={16} />}
         />
         <DrawerItem
           label="Messages"
-          labelStyle={{ marginLeft: -10 }}
-          onPress={() => props.navigation.navigate("Messages")}
-          icon={ () => <AntDesign name="message1" size={16}/> }
+          labelStyle={{ color: 'black', marginLeft: -16 }}
+          onPress={() => props.navigation.navigate('Messages')}
+          icon={() => <AntDesign name="message1" color="black" size={16} />}
         />
-      </View>
+        <DrawerItem
+          label="Contact us"
+          labelStyle={{ color: 'black', marginLeft: -16 }}
+          onPress={() => props.navigation.navigate('Contact')}
+          icon={() => <AntDesign name="phone" color="black" size={16} />}
+        />
+      </View>     
     </DrawerContentScrollView>
-  )
-}
+  );
+};
 
 export default () => {
-  return(
-    <Drawer.Navigator 
-        initialRouteName="Dashboard"
-        drawerContent={ (props) => <DrawerContent {...props} /> }
-    >
-        <Drawer.Screen name="Screens" component={Screens} />
-    </Drawer.Navigator>
+  const [progress, setProgress] = React.useState(new Animated.Value(0));
+
+  const scale = Animated.interpolate(progress, {
+    inputRange: [0, 1],
+    outputRange: [1, 0.8],
+  });
+
+  const borderRadius = Animated.interpolate(progress, {
+    inputRange: [0, 1],
+    outputRange: [0, 16],
+  });
+
+  const animatedStyle = { borderRadius, transform: [{ scale }] };
+
+  return (
+      <Drawer.Navigator
+        drawerType="slide"
+        overlayColor="transparent"
+        contentContainerStyle={{ flex: 1 }}
+        drawerContentOptions={{
+          backgroundColor: 'lightgray',
+          activeBackgroundColor: 'transparent',
+        }}
+        sceneContainerStyle={{ backgroundColor: 'lightgray' }}
+        drawerContent={props => {
+          setProgress(props.progress);
+          return <DrawerContent {...props} />;
+        }}>
+        <Drawer.Screen name="Screens">
+          {props => <Screens {...props} style={animatedStyle} />}
+        </Drawer.Screen>
+      </Drawer.Navigator>
   );
-}
+};
